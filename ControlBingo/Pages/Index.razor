@@ -1,0 +1,140 @@
+﻿@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+@page "/"
+@using System.Text.Json;
+
+<header>
+    <div class="bg-secondary text-center">
+        <span>Desarrollado por: <a class="text-decoration-none text-info" href="https://www.jmongrio.com" target="_blank" rel="noreferrer">Jasón Mongrillo</a></span>
+    </div>
+    <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+        <div class="container-fluid justify-content-center">
+            <a class="fs-bold h1 text-decoration-none text-white">Semana Sky</a>
+        </div>
+    </nav>
+</header>
+<main class="row justify-content-center mt-4">
+    <div class="row justify-content-center">
+        <form class="col-5" @onsubmit="SaveNumber">
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label fs-5 text-muted">Inserte un número</label>
+                <input type="text" class="form-control" id="number" placeholder="Número" @bind="number" autocomplete="off" autofocus />
+            </div>
+            <div class="mt-2">
+                <button type="submit" class="btn btn-primary w-100">Guardar</button>
+            </div>
+            <div class="mt-2">
+                <button type="button" @onclick="DeleteAll" class="btn btn-danger w-100">Eliminar números</button>
+            </div>
+        </form>
+    </div>
+
+    @if (dataList == null)
+    {
+        <div class="text-center mt-5">
+            <p class="fs-5 text-muted">Nada que mostrar</p>
+        </div>
+    }
+    else
+    {
+        <div class="col-6">
+            <div class="row row-cols-4 justify-content-start mt-5">
+                @foreach (var item in dataList.Reverse<Data>())
+                {
+                    <div class="col-3 mt-3 ">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <div class="d-flex justify-content-end">
+                                    <button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => DeleteById(item.Id)">X</button>
+                                </div>
+                                <h2 class="card-title m-0" style="font-size: 4rem;">@item.Number</h2>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</main>
+
+@code {
+    //private Data[]? dataList;
+    private List<Data> dataList;
+    string number = string.Empty;
+    int index = 0;
+    int id;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var dataJson = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "dataList");
+        if (!string.IsNullOrEmpty(dataJson))
+        {
+            //dataList = JsonSerializer.Deserialize<Data[]>(dataJson);
+            dataList = JsonSerializer.Deserialize<List<Data>>(dataJson)!;
+        }
+    }
+
+    private void SaveNumber()
+    {
+        if (dataList == null)
+        {
+            List<Data> newDataList = new()
+            {
+                new Data
+                {
+                    Id = 1,
+                    Number = int.Parse(number)
+                }
+            };
+
+            dataList = newDataList;
+        }
+        else
+        {
+            int id = dataList.Count + 1;
+
+            Data newData = new Data
+                {
+                    Id = id,
+                    Number = int.Parse(number)
+                };
+
+            dataList.Add(newData);
+        }
+
+        // Guarda dataList en localStorage
+        var dataJson = JsonSerializer.Serialize(dataList);
+        JSRuntime.InvokeVoidAsync("localStorage.setItem", "dataList", dataJson);
+
+        number = string.Empty;
+    }
+
+    private void DeleteById(int id)
+    {
+        if (dataList != null)
+        {
+
+            dataList = dataList.Where(data => data.Id != id).ToList();
+
+            // Guarda dataList actualizada en localStorage
+            var dataJson = JsonSerializer.Serialize(dataList);
+            JSRuntime.InvokeVoidAsync("localStorage.setItem", "dataList", dataJson);
+        }
+    }
+
+    private void DeleteAll()
+    {
+        dataList = null;
+
+        // Elimina dataList del localStorage
+        JSRuntime.InvokeVoidAsync("localStorage.removeItem", "dataList");
+    }
+
+    public class Data
+    {
+        public int Id { get; set; }
+        public int Number { get; set; }
+    }
+}
+            }
