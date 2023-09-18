@@ -1,5 +1,10 @@
 # Control de Bingo
 
+![GitHub repo size](https://img.shields.io/github/repo-size/jmongrio/ControlDeBingo)
+![GitHub stars](https://img.shields.io/github/stars/jmongrio/ControlDeBingo)
+![GitHub forks](https://img.shields.io/github/forks/jmongrio/ControlDeBingo)
+![GitHub license](https://img.shields.io/github/license/jmongrio/ControlDeBingo)
+
 Control de Bingo es una aplicación de Blazor WebAssembly que permite llevar un registro de números en una partida de bingo. Facilita la administración de los números llamados y ofrece una forma sencilla de eliminarlos si se producen errores.
 
 ## Características
@@ -26,10 +31,6 @@ Si deseas contribuir a este proyecto, ¡te damos la bienvenida! Puedes hacerlo a
 ## Problemas
 
 Si encuentras algún problema o tienes sugerencias para mejorar la aplicación, por favor, crea un nuevo issue en este repositorio. Estamos abiertos a tus comentarios.
-
-## Licencia
-
-Este proyecto está bajo la licencia [Nombre de la Licencia]. Consulta el archivo [LICENSE.md](LICENSE.md) para obtener más detalles.
 
 ## Agradecimientos
 
