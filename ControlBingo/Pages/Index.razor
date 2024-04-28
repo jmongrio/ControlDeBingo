@@ -5,16 +5,13 @@
 @using System.Text.Json;
 
 <header>
-    <div class="bg-secondary text-center">
-        <span>Desarrollado por: <a class="text-decoration-none text-info" href="https://www.jmongrio.com" target="_blank" rel="noreferrer">Jasón Mongrillo</a></span>
-    </div>
     <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
         <div class="container-fluid justify-content-center">
-            <a class="fs-bold h1 text-decoration-none text-white">Control para bingos</a>
+            <a class="fs-bold h1 text-decoration-none text-white">Control para bingo</a>
         </div>
     </nav>
 </header>
-<main class="row justify-content-center mt-4">
+<main class="row justify-content-center mt-4 w-100">
     <div class="row justify-content-center">
         <form class="col-5" @onsubmit="SaveNumber">
             <div class="mb-3">
@@ -42,7 +39,7 @@
             <div class="row row-cols-4 justify-content-start mt-5">
                 @foreach (var item in dataList.Reverse<Data>())
                 {
-                    <div class="col-3 mt-3 ">
+                    <div class="col-3 mt-3">
                         <div class="card">
                             <div class="card-body text-center">
                                 <div class="d-flex justify-content-end">
@@ -59,8 +56,7 @@
 </main>
 
 @code {
-    //private Data[]? dataList;
-    private List<Data> dataList;
+    private List<Data>? dataList;
     string number = string.Empty;
     int index = 0;
     int id;
@@ -70,7 +66,6 @@
         var dataJson = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "dataList");
         if (!string.IsNullOrEmpty(dataJson))
         {
-            //dataList = JsonSerializer.Deserialize<Data[]>(dataJson);
             dataList = JsonSerializer.Deserialize<List<Data>>(dataJson)!;
         }
     }
@@ -137,4 +132,3 @@
         public int Number { get; set; }
     }
 }
-            }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-100">
 
 <head>
     <meta charset="utf-8" />
@@ -11,14 +11,25 @@
     <link href="ControlBingo.styles.css" rel="stylesheet" />
 </head>
 
-<body>
-    <div id="app">Loading...</div>
+<body class="d-flex flex-column h-100">
+    <div id="app">
+        <div class="d-flex justify-content-center vh-100">
+            <div class="spinner-grow align-self-center text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
 
     <div id="blazor-error-ui">
         An unhandled error has occurred.
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
     </div>
+
+    <footer class="text-center mt-auto py-2 bg-primary">
+        <span class="text-white py-1">Desarrollado por: <a class="text-decoration-none text-white fw-bold linkScale" href="https://www.jmongrio.com" target="_blank" rel="noreferrer">Jasón Mongrillo</a></span>
+    </footer>
+
     <script src="_framework/blazor.webassembly.js"></script>
 </body>
 

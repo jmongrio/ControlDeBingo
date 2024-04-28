@@ -62,3 +62,12 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+.linkScale {
+    text-decoration: none !important;
+}
+
+    .linkScale:hover {
+        text-decoration: underline !important;
+        transition: text-decoration .3s ease-in;
+    }
