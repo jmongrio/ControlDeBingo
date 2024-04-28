@@ -15,7 +15,7 @@ Control de Bingo es una aplicación de Blazor WebAssembly que permite llevar un 
 
 ## Capturas de Pantalla
 
-![Captura de Pantalla 1](https://github.com/jmongrio/ControlDeBingo/assets/63427621/ca52f29f-8a39-4cd5-92a9-a0c7275d3488)
+![Captura de Pantalla 1](![control-bingo-img](https://github.com/jmongrio/ControlDeBingo/assets/63427621/7c74ff33-61dd-434c-83db-b15bf43d4adc)
 
 ## Instrucciones de Uso
 
