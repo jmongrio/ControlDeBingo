@@ -1,15 +1,20 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
-WORKDIR /app
+# Fase 1: Build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+WORKDIR /src
 
-# Copy csproj and restore as distinct layers
-COPY /ControlBingo/*.csproj ./
+# Copiar los archivos del proyecto al contenedor
+COPY . ./
+
+# Restaurar dependencias y compilar el proyecto
 RUN dotnet restore
-
-# Copy everything else and build
-COPY /ControlBingo/. ./
 RUN dotnet publish -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 As runtime
-WORKDIR /app
-COPY --from=build-env /app/publish .
-ENTRYPOINT ["dotnet", "ControlBingo.dll"]
+# Fase 2: Nginx Runtime
+FROM nginx:alpine AS runtime
+WORKDIR /usr/share/nginx/html
+
+# Copiar los archivos de Blazor WebAssembly al servidor web
+COPY --from=build /app/publish/wwwroot .
+
+# Iniciar Nginx automáticamente
+CMD ["nginx", "-g", "daemon off;"]
