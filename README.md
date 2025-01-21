@@ -19,7 +19,7 @@ Control de Bingo es una aplicación de Blazor WebAssembly que permite llevar un 
 
 ## Instrucciones de Uso
 
-1. Abre la aplicación en tu navegador en [https://control-para-bingo.netlify.app/](https://control-para-bingo.netlify.app/).
+1. Abre la aplicación en tu navegador en [https://control-para-bingo.netlify.app/](https://control-bingo.app.jmongrio.com/).
 2. Introduce los números llamados durante la partida de bingo.
 2. Introduce los números llamados durante la partida de bingo.
 3. Si cometes un error o necesitas eliminar un número, simplemente haz clic en el botón "Eliminar" junto al número correspondiente.
