@@ -11,9 +11,9 @@
         </div>
     </nav>
 </header>
-<main class="row justify-content-center mt-4 w-100">
+<main class="row justify-content-center my-4 w-100">
     <div class="row justify-content-center">
-        <form class="col-5" @onsubmit="SaveNumber">
+        <form class="col-10 col-md-6" @onsubmit="SaveNumber">
             <div class="mb-3">
                 <label for="exampleFormControlInput1" class="form-label fs-5 text-muted">Inserte un número</label>
                 <input type="text" class="form-control" id="number" placeholder="Número" @bind="number" autocomplete="off" autofocus />
@@ -35,11 +35,11 @@
     }
     else
     {
-        <div class="col-6">
+        <div class="col-10 col-md-6">
             <div class="row row-cols-4 justify-content-start mt-5">
                 @foreach (var item in dataList.Reverse<Data>())
                 {
-                    <div class="col-3 mt-3">
+                    <div class="col-6 col-md-3 mt-3">
                         <div class="card">
                             <div class="card-body text-center">
                                 <div class="d-flex justify-content-end">
