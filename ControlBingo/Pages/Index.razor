@@ -1,67 +1,84 @@
 ﻿@inject IJSRuntime JSRuntime
 
 @page "/"
-@using System.Text.Json;
+@using System.Text.Json
+@using Microsoft.AspNetCore.Components.Web
 
 <header>
-    <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
-        <div class="container-fluid justify-content-center">
-            <a class="fs-bold h1 text-decoration-none text-white">Bingo</a>
+    <nav class="navbar navbar-expand-lg bg-primary shadow-sm">
+        <div class="container justify-content-center">
+            <a class="fw-bold h2 text-decoration-none text-white">🎲 Bingo</a>
         </div>
     </nav>
 </header>
 
-<main class="row justify-content-center my-4 w-100">
-    <div class="row justify-content-center">
-        <form class="col-10 col-md-6" @onsubmit="SaveNumber">
-            <div class="mb-3">
-                <label for="number" class="form-label fs-5 text-muted">Inserte un número</label>
-                <input type="number" class="form-control" id="number" placeholder="Número"
-                       @bind="number" autocomplete="off" autofocus />
-            </div>
-            <div class="mt-2">
-                <button type="submit" class="btn btn-primary w-100">Guardar</button>
-            </div>
-            <div class="mt-2">
-                <button type="button" @onclick="DeleteAll" class="btn btn-danger w-100">Eliminar números</button>
-            </div>
-        </form>
-    </div>
+<main class="container-fluid my-4">
+    <div class="row g-4">
+        <!-- Panel izquierdo -->
+        <div class="col-12 col-md-3">
+            <div class="card shadow-lg p-4 sticky-top" style="top: 1rem;">
+                <h5 class="mb-3 text-muted text-center">Panel de Control</h5>
+                <div class="form-floating mb-3">
+                    <input type="number" class="form-control form-control-lg" id="number"
+                           placeholder="Número" @bind="number" autocomplete="off"
+                           @onkeydown="HandleKeyDown" @ref="numberInput" />
+                    <label for="number">Inserte un número</label>
+                </div>
 
-    @if (dataList == null || !dataList.Any())
-    {
-        <div class="text-center mt-5">
-            <p class="fs-5 text-muted">Nada que mostrar</p>
-        </div>
-    }
-    else
-    {
-        <div class="col-10 col-md-6">
-            <div class="row row-cols-4 justify-content-start mt-5">
-                @foreach (var item in dataList.OrderByDescending(x => x.Id))
+                <button type="button" class="btn btn-primary btn-lg w-100 mb-3" @onclick="SaveNumber">
+                    Guardar
+                </button>
+                <button type="button" class="btn btn-outline-danger btn-lg w-100" @onclick="DeleteAll">
+                    Eliminar todos
+                </button>
+
+                <!-- Último número registrado -->
+                @if (dataList.Any())
                 {
-                    <div class="col-6 col-md-3 mt-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body text-center">
-                                <div class="d-flex justify-content-end">
-                                    <button type="button" class="btn btn-outline-danger btn-sm"
-                                            @onclick="() => DeleteById(item.Id)">
-                                        X
-                                    </button>
-                                </div>
-                                <h2 class="card-title m-0" style="font-size: 4rem;">@item.Number</h2>
-                            </div>
-                        </div>
+                    <div class="mt-4 p-3 bg-warning rounded text-center shadow">
+                        <h2 class="fw-bold mb-0">Último número</h2>
+                        <h1 class="display-1 fw-bold text-dark">@dataList.Last().Number</h1>
                     </div>
                 }
             </div>
         </div>
-    }
+
+
+        <!-- Panel derecho -->
+        <div class="col-12 col-md-9">
+            @if (dataList == null || !dataList.Any())
+            {
+                <div class="text-center mt-5">
+                    <p class="fs-3 text-muted">Nada que mostrar</p>
+                </div>
+            }
+            else
+            {
+                <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-4">
+                    @foreach (var item in dataList.OrderByDescending(x => x.Id))
+                    {
+                        <div class="col">
+                            <div class="card shadow border-0 rounded-4 text-center bg-light">
+                                <div class="card-body p-4">
+                                    <h1 class="fw-bold display-3 text-primary">@item.Number</h1>
+                                    <button type="button" class="btn btn-sm btn-outline-danger mt-3"
+                                            @onclick="() => DeleteById(item.Id)">
+                                        Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
 </main>
 
 @code {
     private List<Data> dataList = new();
     private string number = string.Empty;
+    private ElementReference numberInput; // referencia al input
 
     protected override async Task OnInitializedAsync()
     {
@@ -72,6 +89,14 @@
         }
     }
 
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SaveNumber();
+        }
+    }
+
     private async Task SaveNumber()
     {
         if (string.IsNullOrWhiteSpace(number)) return;
@@ -79,6 +104,8 @@
         if (!int.TryParse(number, out int parsedNumber))
         {
             await JSRuntime.InvokeVoidAsync("alert", "Por favor ingrese un número válido.");
+            number = string.Empty;
+            await FocusInput();
             return;
         }
 
@@ -86,6 +113,7 @@
         {
             await JSRuntime.InvokeVoidAsync("alert", $"El número {parsedNumber} ya está registrado.");
             number = string.Empty;
+            await FocusInput();
             return;
         }
 
@@ -99,6 +127,7 @@
 
         await SaveToLocalStorage();
         number = string.Empty;
+        await FocusInput(); // 🔹 vuelve a enfocar el input
     }
 
     private async Task DeleteById(int id)
@@ -114,6 +143,7 @@
         {
             dataList.Clear();
             await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "dataList");
+            await FocusInput();
         }
     }
 
@@ -121,6 +151,11 @@
     {
         var dataJson = JsonSerializer.Serialize(dataList);
         await JSRuntime.InvokeVoidAsync("localStorage.setItem", "dataList", dataJson);
+    }
+
+    private async Task FocusInput()
+    {
+        await numberInput.FocusAsync();
     }
 
     public class Data
