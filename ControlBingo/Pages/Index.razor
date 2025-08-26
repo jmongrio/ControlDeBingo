@@ -1,5 +1,4 @@
-﻿@inject HttpClient Http
-@inject IJSRuntime JSRuntime
+﻿@inject IJSRuntime JSRuntime
 
 @page "/"
 @using System.Text.Json;
@@ -11,12 +10,14 @@
         </div>
     </nav>
 </header>
+
 <main class="row justify-content-center my-4 w-100">
     <div class="row justify-content-center">
         <form class="col-10 col-md-6" @onsubmit="SaveNumber">
             <div class="mb-3">
-                <label for="exampleFormControlInput1" class="form-label fs-5 text-muted">Inserte un número</label>
-                <input type="text" class="form-control" id="number" placeholder="Número" @bind="number" autocomplete="off" autofocus />
+                <label for="number" class="form-label fs-5 text-muted">Inserte un número</label>
+                <input type="number" class="form-control" id="number" placeholder="Número"
+                       @bind="number" autocomplete="off" autofocus />
             </div>
             <div class="mt-2">
                 <button type="submit" class="btn btn-primary w-100">Guardar</button>
@@ -27,7 +28,7 @@
         </form>
     </div>
 
-    @if (dataList == null)
+    @if (dataList == null || !dataList.Any())
     {
         <div class="text-center mt-5">
             <p class="fs-5 text-muted">Nada que mostrar</p>
@@ -37,13 +38,16 @@
     {
         <div class="col-10 col-md-6">
             <div class="row row-cols-4 justify-content-start mt-5">
-                @foreach (var item in dataList.Reverse<Data>())
+                @foreach (var item in dataList.OrderByDescending(x => x.Id))
                 {
                     <div class="col-6 col-md-3 mt-3">
-                        <div class="card">
+                        <div class="card shadow-sm">
                             <div class="card-body text-center">
                                 <div class="d-flex justify-content-end">
-                                    <button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => DeleteById(item.Id)">X</button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm"
+                                            @onclick="() => DeleteById(item.Id)">
+                                        X
+                                    </button>
                                 </div>
                                 <h2 class="card-title m-0" style="font-size: 4rem;">@item.Number</h2>
                             </div>
@@ -56,8 +60,8 @@
 </main>
 
 @code {
-    private List<Data>? dataList;
-    string number = string.Empty;
+    private List<Data> dataList = new();
+    private string number = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -68,60 +72,55 @@
         }
     }
 
-    private void SaveNumber()
+    private async Task SaveNumber()
     {
-        if (dataList == null)
+        if (string.IsNullOrWhiteSpace(number)) return;
+
+        if (!int.TryParse(number, out int parsedNumber))
         {
-            List<Data> newDataList = new()
-            {
-                new Data
-                {
-                    Id = 1,
-                    Number = int.Parse(number)
-                }
-            };
-
-            dataList = newDataList;
-        }
-        else
-        {
-            int id = dataList.Count + 1;
-
-            Data newData = new Data
-                {
-                    Id = id,
-                    Number = int.Parse(number)
-                };
-
-            dataList.Add(newData);
+            await JSRuntime.InvokeVoidAsync("alert", "Por favor ingrese un número válido.");
+            return;
         }
 
-        // Guarda dataList en localStorage
-        var dataJson = JsonSerializer.Serialize(dataList);
-        JSRuntime.InvokeVoidAsync("localStorage.setItem", "dataList", dataJson);
+        if (dataList.Any(d => d.Number == parsedNumber))
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"El número {parsedNumber} ya está registrado.");
+            number = string.Empty;
+            return;
+        }
 
+        int newId = dataList.Any() ? dataList.Max(x => x.Id) + 1 : 1;
+
+        dataList.Add(new Data
+        {
+            Id = newId,
+            Number = parsedNumber
+        });
+
+        await SaveToLocalStorage();
         number = string.Empty;
     }
 
-    private void DeleteById(int id)
+    private async Task DeleteById(int id)
     {
-        if (dataList != null)
+        dataList = dataList.Where(data => data.Id != id).ToList();
+        await SaveToLocalStorage();
+    }
+
+    private async Task DeleteAll()
+    {
+        var confirm = await JSRuntime.InvokeAsync<bool>("confirm", "¿Seguro que quieres eliminar todos los números?");
+        if (confirm)
         {
-
-            dataList = dataList.Where(data => data.Id != id).ToList();
-
-            // Guarda dataList actualizada en localStorage
-            var dataJson = JsonSerializer.Serialize(dataList);
-            JSRuntime.InvokeVoidAsync("localStorage.setItem", "dataList", dataJson);
+            dataList.Clear();
+            await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "dataList");
         }
     }
 
-    private void DeleteAll()
+    private async Task SaveToLocalStorage()
     {
-        dataList = null;
-
-        // Elimina dataList del localStorage
-        JSRuntime.InvokeVoidAsync("localStorage.removeItem", "dataList");
+        var dataJson = JsonSerializer.Serialize(dataList);
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "dataList", dataJson);
     }
 
     public class Data
