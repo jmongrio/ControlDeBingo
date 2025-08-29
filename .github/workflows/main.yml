@@ -23,3 +23,4 @@ jobs:
             --caproverUrl ${{ secrets.CAPROVER_SERVER }} \
             --appToken ${{ secrets.CAPROVER_APP_TOKEN }} \
             --appName ${{ secrets.CAPROVER_APP_NAME }}
+            --branch master
