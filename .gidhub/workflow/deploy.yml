@@ -1,0 +1,21 @@
+name: Deploy to CapRover
+
+on:
+  push:
+    branches:
+      - main  # o la rama que uses para producción
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to CapRover
+        uses: caprover/deploy-from-github@v1
+        with:
+          server: ${{ secrets.CAPROVER_SERVER }}
+          appToken: ${{ secrets.CAPROVER_APP_TOKEN }}
+          appName: ${{ secrets.CAPROVER_APP_NAME }}
