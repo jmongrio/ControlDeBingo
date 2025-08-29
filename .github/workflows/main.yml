@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -13,9 +14,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Install CapRover CLI
+        run: npm install -g caprover
+
       - name: Deploy to CapRover
-        uses: caprover/deploy-from-github@main
-        with:
-          server: ${{ secrets.CAPROVER_SERVER }}
-          app: ${{ secrets.CAPROVER_APP_NAME }}
-          token: ${{ secrets.CAPROVER_APP_TOKEN }}
+        run: |
+          caprover deploy \
+            --caproverUrl ${{ secrets.CAPROVER_SERVER }} \
+            --appToken ${{ secrets.CAPROVER_APP_TOKEN }} \
+            --appName ${{ secrets.CAPROVER_APP_NAME }}
