@@ -16,20 +16,13 @@ jobs:
       - name: Set up .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.x'         
-          cache: 'nuget'
+          dotnet-version: '8.x'
 
       - name: Restore dependencies
         run: dotnet restore
 
       - name: Build Blazor app (Release)
         run: dotnet publish ControlBingo.sln -c Release -o published
-
-      - name: Archive build output
-        uses: actions/upload-artifact@v4
-        with:
-          name: bingo-build
-          path: published/
 
       - name: Create deploy.tar
         run: |
