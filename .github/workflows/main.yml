@@ -1,45 +1,44 @@
-name: Deploy to CapRover
+name: Build & Deploy
 
 on:
   push:
     branches: [ "master" ]
-
   pull_request:
     branches: [ "master" ]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x]
-
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "npm"
-      - run: npm ci
-      - run: npm run build --if-present
-      - run: npm run test --if-present
 
-      - uses: a7ul/tar-action@v1.1.0
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v3
         with:
-          command: c
-          cwd: "./"
-          files: |
-            backend/
-            frontend/dist/
-            captain-definition
-          outPath: deploy.tar
+          dotnet-version: '8.x'         # Ajusta según tu versión de .NET si fuera diferente
+          cache: 'nuget'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build Blazor app (Release)
+        run: dotnet publish ControlBingo.sln -c Release -o published
+
+      - name: Archive build output
+        uses: actions/upload-artifact@v3
+        with:
+          name: bingo-build
+          path: published/
+
+      - name: Create deploy.tar
+        run: |
+          tar -czf deploy.tar published/ caprover-definition
 
       - name: Deploy App to CapRover
         uses: caprover/deploy-from-github@v1.0.1
         with:
-          server: '${{ secrets.CAPROVER_SERVER }}'
-          app: '${{ secrets.APP_NAME }}'
-          token: '${{ secrets.APP_TOKEN }}'
+          server: ${{ secrets.CAPROVER_SERVER }}
+          app: ${{ secrets.APP_NAME }}
+          token: ${{ secrets.APP_TOKEN }}
+          tarFile: deploy.tar
