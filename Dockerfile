@@ -11,16 +11,9 @@ EXPOSE 443
 # ======================
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-
-# Copiar solución y proyecto
-COPY ControlBingo.sln ./
-COPY ControlBingo/ ./ControlBingo/
-
-# Restaurar dependencias
+COPY ..
 RUN dotnet restore
-
-# Publicar app
-RUN dotnet publish ControlBingo/ControlBingo.csproj -c Release -o /app/publish
+RUN dotnet publish -c Release -o /app/publish
 
 # ======================
 # Final stage
