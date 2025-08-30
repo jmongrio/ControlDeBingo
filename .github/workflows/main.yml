@@ -24,14 +24,13 @@ jobs:
       - name: Build Blazor app (Release)
         run: dotnet publish ControlBingo.sln -c Release -o published
 
-      - name: Create deploy.tar
+      - name: Prepare deployment folder
         run: |
-          tar -czf deploy.tar published/ caprover-definition
-
+          cp -r published/* .
+      
       - name: Deploy App to CapRover
         uses: caprover/deploy-from-github@v1.0.1
         with:
           server: ${{ secrets.CAPROVER_SERVER }}
           app: ${{ secrets.APP_NAME }}
           token: ${{ secrets.APP_TOKEN }}
-          tarFile: deploy.tar
