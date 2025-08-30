@@ -1,20 +1,30 @@
-# Fase 1: Build
+# ======================
+# Build stage
+# ======================
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copiar los archivos del proyecto al contenedor
-COPY . ./
+# Copiamos la solución y los proyectos
+COPY ControlBingo.sln ./
+COPY ControlBingo/ ./ControlBingo/
 
-# Restaurar dependencias y compilar el proyecto
+# Restauramos dependencias
 RUN dotnet restore
-RUN dotnet publish -c Release -o /app/publish
 
-# Fase 2: Nginx Runtime
-FROM nginx:alpine AS runtime
-WORKDIR /usr/share/nginx/html
+# Publicamos la app en Release
+RUN dotnet publish ControlBingo/ControlBingo.csproj -c Release -o /app/publish
 
-# Copiar los archivos de Blazor WebAssembly al servidor web
-COPY --from=build /app/publish/wwwroot .
+# ======================
+# Runtime stage
+# ======================
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
 
-# Iniciar Nginx automáticamente
-CMD ["nginx", "-g", "daemon off;"]
+# Copiamos los archivos publicados del build
+COPY --from=build /app/publish .
+
+# Puerto en el que escuchará la app
+EXPOSE 80
+
+# Comando para correr la app
+ENTRYPOINT ["dotnet", "ControlBingo.dll"]
