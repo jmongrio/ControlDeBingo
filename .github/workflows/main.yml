@@ -27,7 +27,7 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker buildx build --file Dockerfile --tag ${{ secrets.CAPROVER_SERVER }}/${{ secrets.APP_NAME }}:latest --push .
+          docker buildx build --file Dockerfile --tag jmongrillo/control-bingo:latest --push .
 
       - name: Deploy App to CapRover
         uses: caprover/deploy-from-github@v1.0.1
