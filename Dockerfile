@@ -1,30 +1,31 @@
 # ======================
+# Base runtime
+# ======================
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+EXPOSE 80
+ENV ASPNETCORE_URLS=http://+:80
+
+# ======================
 # Build stage
 # ======================
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copiamos la solución y los proyectos
+# Copiar solución y proyecto
 COPY ControlBingo.sln ./
 COPY ControlBingo/ ./ControlBingo/
 
-# Restauramos dependencias
+# Restaurar dependencias
 RUN dotnet restore
 
-# Publicamos la app en Release
+# Publicar app
 RUN dotnet publish ControlBingo/ControlBingo.csproj -c Release -o /app/publish
 
 # ======================
-# Runtime stage
+# Final stage
 # ======================
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+FROM base AS final
 WORKDIR /app
-
-# Copiamos los archivos publicados del build
 COPY --from=build /app/publish .
-
-# Puerto en el que escuchará la app
-EXPOSE 80
-
-# Comando para correr la app
 ENTRYPOINT ["dotnet", "ControlBingo.dll"]
